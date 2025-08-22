@@ -1,16 +1,11 @@
-from pinecone import Pinecone, ServerlessSpec
+from pinecone import Pinecone
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-API_KEY = os.getenv('API_KEY')
+PINECONE_API_KEY = os.getenv('PINECONE_API_KEY')
 
-print(API_KEY)
+pc = Pinecone(api_key=PINECONE_API_KEY)
 
-pc = Pinecone(api_key=API_KEY)
-
-
-index = pc.Index("cocktail-embedding-system")
-
-print(index.describe_index_stats())
+PC_INDEX = pc.Index("cocktail-embedding-system")
