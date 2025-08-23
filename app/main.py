@@ -1,13 +1,16 @@
 import streamlit as st
-from services.gemini_llm import get_gemini_response, generate_prompt
+from services.gemini_llm import get_gemini_response, generate_prompt, extract_preferences
 from services.get_recommendations import get_recommendations
+
+
+mock_user_id = st.selectbox("Select user", ["User_1", "User_2", "User_3"])
 
 st.title('Cocktail recommendation chatbot🍸')
 
 st.text_input("Enter your query", key="question")
 top_matches = st.slider("Select number of top matches", 1, 10, 5)
 
-pinecone_results = get_recommendations(st.session_state.question, top_k=top_matches)
+pinecone_results = get_recommendations(st.session_state.question, mock_user_id, top_k=top_matches)
 
 st.write(pinecone_results)
 
@@ -16,6 +19,8 @@ promt = generate_prompt(st.session_state.question, pinecone_results)
 response = get_gemini_response(promt)
 
 st.write(response.text)
+
+st.write(f"Extracted preferences: {extract_preferences(st.session_state.question)}")
 
 # df = pd.read_csv("data/raw/final_cocktails.csv")
 #

@@ -26,6 +26,16 @@ def get_gemini_response(prompt):
     return response
 
 
+def parse_gemini_responses(response):
+    match = re.search(r"\{.*\}", response.text, re.DOTALL)
+    if match:
+        json_str = match.group(0)
+        data = json.loads(json_str)
+    else:
+        print("JSON not found")
+    return data
+
+
 def check_filters(user_query):
     prompt = f"""
         Extract filters from the following cocktail request. If the user does not directly say something, do not apply 
@@ -41,12 +51,20 @@ def check_filters(user_query):
         Query: "{user_query}"
         """
     response = get_gemini_response(prompt)
-    match = re.search(r"\{.*\}", response.text, re.DOTALL)
-    if match:
-        json_str = match.group(0)
-        data = json.loads(json_str)
-        print(data)
-    else:
-        print("JSON not found")
-    print(response.text)
-    return data
+    parsed_response = parse_gemini_responses(response)
+    return parsed_response
+
+
+def extract_preferences(user_query: str):
+    prompt = f"""
+    Extract cocktail preferences from the text if any. 
+    Return strictly in JSON with keys:
+    - love_ingredients: list of strings (Ingredients that the user likes)
+    - hate_ingredients: list of strings (ingredients that the user does not like)
+    - love_cocktails: list of strings (cocktail names that the user likes)
+
+    Query: "{user_query}"
+    """
+    response = get_gemini_response(prompt)
+    parsed_response = parse_gemini_responses(response)
+    return parsed_response
